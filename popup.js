@@ -5,15 +5,15 @@ const PRESETS = {
   link: { data: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23FA5252' viewBox='0 0 24 24'%3E%3Cpath d='M3 3h18a2 2 0 012 2v14a2 2 0 01-2 2H3a2 2 0 01-2-2V5a2 2 0 012-2zm1 1v18h18V4H4zm11 3l-6 6h4v6h-4v-6H8l6-6z'/%3E%3C/svg%3E" }
 };
 
-const THEME_LABELS = ['W', 'S', 'D'];
+const THEME_LABELS = ['L', 'S', 'D'];
 const THEMES = ['light', 'system', 'dark'];
 
 const GITHUB_CONFIG = {
   owner: 'rusanovcode',
-  repo: 'Quick-Links',
+  repo: 'QuickLinks',
   branch: 'main',
   manifestPath: 'manifest.json',
-  repoUrl: 'https://github.com/rusanovcode/Quick-Links'
+  repoUrl: 'https://github.com/rusanovcode/QuickLinks'
 };
 
 const TRANSLATIONS = {
@@ -265,7 +265,6 @@ function updateLanguage() {
   document.getElementById('updateInstructionsText').innerHTML = t.updateInstructions;
   document.getElementById('understoodBtn').textContent = t.understood;
 
-  // Обновление текста кнопки проверки обновлений
   if (!updateAvailable) {
     document.getElementById('checkUpdateText').textContent = t.checkUpdate;
   }
@@ -585,7 +584,6 @@ function resetForm() {
   updateLanguage();
 }
 
-// Проверка обновлений
 async function checkForUpdates() {
   const btn = document.getElementById('checkUpdateBtn');
   const t = TRANSLATIONS[currentLang];
@@ -791,7 +789,6 @@ function setupEventListeners() {
     }
   };
 
-  // GitHub link в футере
   document.getElementById('githubFooterLink').onclick = () => {
     chrome.tabs.create({ url: GITHUB_CONFIG.repoUrl });
   };
