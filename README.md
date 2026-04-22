@@ -1,22 +1,71 @@
-Quick-Links
-Quick access menu for your favorite links. Drag, drop, pin.
+﻿# Quick Links
 
-..................................
+Quick Links is a Chrome/Chromium popup extension for keeping a compact set of important links one click away from the browser toolbar.
 
-Меню быстрого доступа к вашим любимым ссылкам. Перетаскивайте, закрепляйте.
+The project is intentionally small. It is not a full bookmark manager. The current goal is a fast, reliable launcher for a personal set of links.
 
-..................................
+## Current Features
 
-Step 1: Download the files Go to the GitHub repository. Click the green <> Code button → Download ZIP. Unzip the archive to any folder on your computer.
+- Save links manually
+- Save the current active tab
+- Organize links into collections
+- Search by name, URL, or note
+- Mark links as favorites
+- Reorder links inside a collection with drag-and-drop
+- Export the full state to JSON
+- Import the full state from JSON
+- Mirror links into browser bookmarks as a safety backup
+- Check GitHub for updates using version comparison plus source fingerprint fallback
 
-Step 2: Install in Chrome Open Chrome (or any Chromium-based browser like Edge, Opera, or Brave). Type chrome://extensions/ in the address bar and press Enter. Turn on the "Developer mode" toggle (top right corner). Click the "Load unpacked" button. Select the folder containing the extension files (the one where manifest.json is located). Done! The icon will appear in your toolbar.
+## Project Files
 
-Step 3: Pin the icon Click the 🧩 (Extensions) icon to the right of the address bar. Find Quick Links in the list. Click the 📌 (Pin) icon to keep it visible on the toolbar.
+- `manifest.json`
+  Extension metadata and permissions.
 
-................................
+- `popup.html`
+  Popup markup and styles.
 
-Шаг 1: Скачайте файлы Перейдите на GitHub репозиторий Нажмите зелёную кнопку <> Code → Download ZIP Распакуйте архив в любую папку на компьютере
+- `popup.js`
+  Application logic: state boot, rendering, storage, backup, import/export, update check, collections, and link actions.
 
-Шаг 2: Установите в Chrome Откройте браузер Chrome (или Edge, Opera, Brave на Chromium) В адресной строке введите: chrome://extensions/ и нажмите Enter Включите переключатель "Режим разработчика" (справа вверху) Нажмите кнопку "Загрузить распакованное" (Load unpacked) Выберите папку с файлами расширения (ту, где лежит manifest.json) Готово! Иконка появится в панели инструментов
+- `PROJECT_CONTEXT.md`
+  Fast orientation file for future sessions and contributors.
 
-Шаг 3: Закрепите иконку Нажмите на значок 🧩 (расширения) справа от адресной строки Найдите Quick Links в списке Нажмите на 📌 (закрепить) — иконка останется на панели
+- `CHANGELOG.md`
+  High-level history of important product changes.
+
+- `ROADMAP.md`
+  Current backlog and planned directions.
+
+- `TEST_CHECKLIST.md`
+  Manual verification steps after changes.
+
+## Storage And Backup
+
+Primary state is stored in `chrome.storage.local` under `quickLinksState`.
+
+There are two backup layers:
+
+- JSON export/import for the full rich state
+- Browser bookmarks mirror under `Quick Links Menu Backup` for raw link recovery after reinstall
+
+Important limitation:
+
+- bookmark backup preserves links only
+- JSON backup preserves collections, notes, favorites, and custom icons
+
+## Install Locally
+
+1. Open `chrome://extensions/`
+2. Enable Developer mode
+3. Click `Load unpacked`
+4. Select the project folder that contains `manifest.json`
+
+## Development Notes
+
+- No framework
+- No build step
+- No automated tests
+- Most changes happen in `popup.js` and `popup.html`
+
+If a future session needs fast orientation, start with `PROJECT_CONTEXT.md`.
