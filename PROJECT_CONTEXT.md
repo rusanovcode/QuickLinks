@@ -1,4 +1,4 @@
-# Project Context
+﻿# Project Context
 
 This file exists to give a new session a fast technical map of the project without re-reading the whole codebase first.
 
@@ -27,17 +27,37 @@ It is intentionally lightweight. The project is not a full bookmark manager like
   - undo bar and toast
 
 - `popup.js`
-  Purpose: all runtime logic.
+  Purpose: module entrypoint and shared config.
+  Responsibilities:
+  - exports constants and translations used across popup modules
+  - dynamically loads popup modules
+  - creates shared runtime context
+  - boots the popup when the DOM is ready
+
+- `popup-helpers.js`
+  Purpose: pure helpers for URL normalization, icon fallback generation, formatting, theme lookup, and translations.
+
+- `popup-platform.js`
+  Purpose: promise-based wrappers around Chrome storage, tabs, and bookmarks APIs.
+
+- `popup-state.js`
+  Purpose: state boot, migration, normalization, persistence, bookmark backup sync, and restore.
+
+- `popup-render.js`
+  Purpose: DOM element caching plus all UI rendering.
+
+- `popup-actions.js`
+  Purpose: event binding and all user-triggered flows.
   Major areas:
-  - state boot and migration
-  - rendering
-  - storage persistence
-  - bookmark backup sync and restore
-  - JSON import/export
-  - current-tab capture
-  - URL validation and normalization
-  - update check against GitHub
-  - collection and link CRUD
+  - link CRUD
+  - collection CRUD
+  - import/export
+  - quick add current tab
+  - drag-and-drop reorder
+  - modal and toast handling
+
+- `popup-update.js`
+  Purpose: GitHub update check, source fingerprint comparison, and repository-open/download actions.
 
 ## Current Architecture
 
@@ -45,13 +65,15 @@ The extension is a single-page popup with plain JavaScript.
 
 There is no framework, build step, bundler, or test runner.
 
-The popup loads `popup.js`, which:
+The popup now loads `popup.js` as an ES module entrypoint. That entrypoint composes the runtime out of smaller modules with clear boundaries:
 
-1. reads `chrome.storage.local`
-2. migrates old data if needed
-3. restores from bookmark backup if local state is missing
-4. binds event handlers
-5. renders the full UI from in-memory state
+1. config and boot in `popup.js`
+2. pure helpers in `popup-helpers.js`
+3. browser API access in `popup-platform.js`
+4. state lifecycle in `popup-state.js`
+5. rendering in `popup-render.js`
+6. user actions in `popup-actions.js`
+7. GitHub update checks in `popup-update.js`
 
 ## Storage Strategy
 
@@ -74,14 +96,14 @@ Why this exists:
 - bookmark mirror preserves the raw links after reinstall
 - JSON export preserves the full rich state
 
-## Important Functional Areas In popup.js
+## Important Functional Areas
 
 Boot and normalization:
 
 - `loadAppState`
 - `normalizeState`
 - `migrateLegacyState`
-- `sanitizeStoredLink`
+- `createEmptyState`
 
 Backup and restore:
 
@@ -133,8 +155,8 @@ Update check:
 ## Known Constraints
 
 - No automated tests in the repository.
-- The popup is still a single large HTML file and a single large JS file.
-- The project is maintainable at this size, but future growth may justify splitting `popup.js` into modules.
+- The popup is still a single large HTML file.
+- Runtime JS is now modular, but the popup remains fully client-side with no build step.
 - Browser-bookmark backup stores links only, not full metadata.
 
 ## Safe Change Strategy
@@ -159,6 +181,9 @@ Read in this order:
 1. `PROJECT_CONTEXT.md`
 2. `manifest.json`
 3. `popup.js`
-4. `popup.html`
+4. `popup-state.js`
+5. `popup-actions.js`
+6. `popup-render.js`
+7. `popup.html`
 
 That is enough to understand the project without doing a full exploratory pass first.

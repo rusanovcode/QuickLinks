@@ -1,4 +1,4 @@
-# Changelog
+﻿# Changelog
 
 ## 2.0.0
 
@@ -20,6 +20,7 @@ Major popup rewrite focused on reliability, recoverability, and scalability for 
 
 - Popup UI reworked for search, collections, import/export, and management flows
 - State model moved from a flat legacy array to a structured state object
+- Popup runtime is now split into focused ES modules instead of one large script
 - Update check now uses semver comparison plus file fingerprint fallback
 - Favicon loading now uses Chrome's internal favicon support instead of an external Google endpoint
 - URL validation and duplicate handling were tightened

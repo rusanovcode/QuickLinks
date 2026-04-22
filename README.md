@@ -26,7 +26,25 @@ The project is intentionally small. It is not a full bookmark manager. The curre
   Popup markup and styles.
 
 - `popup.js`
-  Application logic: state boot, rendering, storage, backup, import/export, update check, collections, and link actions.
+  Module entrypoint and shared config exports.
+
+- `popup-helpers.js`
+  Shared URL, icon, i18n, and formatting helpers.
+
+- `popup-platform.js`
+  Promise wrappers around Chrome APIs and bookmark-backup primitives.
+
+- `popup-state.js`
+  State boot, normalization, migration, persistence, and backup sync.
+
+- `popup-render.js`
+  DOM caching and UI rendering.
+
+- `popup-actions.js`
+  Popup interactions, CRUD flows, import/export, toasts, and modal actions.
+
+- `popup-update.js`
+  GitHub update-check service.
 
 - `PROJECT_CONTEXT.md`
   Fast orientation file for future sessions and contributors.
@@ -66,6 +84,7 @@ Important limitation:
 - No framework
 - No build step
 - No automated tests
-- Most changes happen in `popup.js` and `popup.html`
+- Runtime logic is now split into small ES modules
+- Most UI work still touches `popup.html` plus one or more `popup-*.js` files
 
 If a future session needs fast orientation, start with `PROJECT_CONTEXT.md`.
