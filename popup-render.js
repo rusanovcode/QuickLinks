@@ -264,48 +264,121 @@ export function createRenderer(ctx, deps) {
     }
 
     ctx.layoutFrame = window.requestAnimationFrame(() => {
-      const { appShell } = ctx.elements;
-      if (!appShell) return;
+      const { appShell, linksList } = ctx.elements;
+      if (!appShell || !linksList) return;
 
+      const header = appShell.querySelector('.header');
+      const contentShell = appShell.querySelector('.content-shell');
+      const toolbar = appShell.querySelector('.toolbar');
+      const hintBox = appShell.querySelector('.hint-box');
+      const addForm = ctx.elements.addForm;
+      const footer = appShell.querySelector('.footer');
+      const rootStyle = window.getComputedStyle(document.documentElement);
       const bodyStyle = window.getComputedStyle(document.body);
+      const appShellStyle = window.getComputedStyle(appShell);
+      const outerMaxHeight = readPx(rootStyle.getPropertyValue('--popup-max-height')) || 576;
       const bodyVerticalPadding = readPx(bodyStyle.paddingTop) + readPx(bodyStyle.paddingBottom);
-      const screenHeight = window.screen?.availHeight || window.innerHeight || 800;
-      const popupMaxOuterHeight = Math.max(344, Math.floor(screenHeight * 0.8));
-      const popupMaxInnerHeight = Math.max(320, popupMaxOuterHeight - bodyVerticalPadding);
+      const innerMaxHeight = Math.max(240, outerMaxHeight - bodyVerticalPadding);
+      const shellVerticalPadding = readPx(appShellStyle.paddingTop) + readPx(appShellStyle.paddingBottom);
+      const shellGap = readPx(appShellStyle.rowGap || appShellStyle.gap);
+      const listShell = linksList.parentElement;
 
-      document.documentElement.style.setProperty('--popup-max-height', `${popupMaxInnerHeight}px`);
-      document.documentElement.style.setProperty('--popup-outer-max-height', `${popupMaxOuterHeight}px`);
-      document.documentElement.style.maxHeight = `${popupMaxOuterHeight}px`;
       document.documentElement.style.overflow = 'hidden';
-      document.body.style.maxHeight = `${popupMaxOuterHeight}px`;
       document.body.style.overflow = 'hidden';
+
+      document.documentElement.style.removeProperty('height');
+      document.documentElement.style.removeProperty('min-height');
+      document.documentElement.style.removeProperty('max-height');
+      document.body.style.removeProperty('height');
+      document.body.style.removeProperty('min-height');
+      document.body.style.removeProperty('max-height');
 
       appShell.style.removeProperty('height');
       appShell.style.removeProperty('min-height');
       appShell.style.removeProperty('max-height');
-      appShell.style.maxHeight = `${popupMaxInnerHeight}px`;
+      appShell.style.overflow = 'hidden';
+      appShell.classList.remove('is-constrained');
 
-      const naturalShellHeight = appShell.scrollHeight;
-      const targetShellHeight = Math.min(naturalShellHeight, popupMaxInnerHeight);
-      const targetOuterHeight = targetShellHeight + bodyVerticalPadding;
+      linksList.style.removeProperty('height');
+      linksList.style.removeProperty('max-height');
+      linksList.style.removeProperty('overflow-y');
+      linksList.style.removeProperty('overflow-x');
+      if (contentShell) {
+        contentShell.style.removeProperty('height');
+        contentShell.style.removeProperty('min-height');
+        contentShell.style.removeProperty('max-height');
+      }
+      if (listShell) {
+        listShell.style.removeProperty('height');
+        listShell.style.removeProperty('min-height');
+        listShell.style.removeProperty('max-height');
+      }
 
-      if (naturalShellHeight <= popupMaxInnerHeight) {
-        document.documentElement.style.height = `${targetOuterHeight}px`;
-        document.body.style.height = `${targetOuterHeight}px`;
-        appShell.style.height = 'auto';
+      if (!header || !contentShell || !toolbar || !hintBox || !footer || !listShell) {
         return;
       }
 
-      document.documentElement.style.height = `${popupMaxOuterHeight}px`;
-      document.body.style.height = `${popupMaxOuterHeight}px`;
-      appShell.style.height = `${popupMaxInnerHeight}px`;
-      appShell.style.maxHeight = `${popupMaxInnerHeight}px`;
-      appShell.style.overflow = 'hidden';
+      const headerHeight = getElementHeight(header);
+      const footerHeight = getElementHeight(footer);
+      const toolbarHeight = getElementHeight(toolbar);
+      const hintHeight = getElementHeight(hintBox);
+      const formHeight = getElementHeight(addForm);
+      const contentShellStyle = window.getComputedStyle(contentShell);
+      const contentGap = readPx(contentShellStyle.rowGap || contentShellStyle.gap);
+      const visibleContentSections = [toolbar, hintBox, addForm, listShell].filter(isVisibleElement).length;
+      const contentGapTotal = contentGap * Math.max(0, visibleContentSections - 1);
+      const availableContentHeight = Math.max(
+        0,
+        innerMaxHeight - shellVerticalPadding - headerHeight - footerHeight - (shellGap * 2)
+      );
+      const fixedContentHeight = toolbarHeight + hintHeight + formHeight + contentGapTotal;
+      const availableListHeight = Math.max(48, Math.floor(availableContentHeight - fixedContentHeight));
+      const naturalLinksHeight = Math.ceil(linksList.scrollHeight);
+      const naturalInnerHeight = shellVerticalPadding + headerHeight + footerHeight + (shellGap * 2) + fixedContentHeight + naturalLinksHeight;
+      const shouldConstrainShell = naturalInnerHeight > innerMaxHeight || naturalLinksHeight > availableListHeight;
+
+      if (!shouldConstrainShell) {
+        return;
+      }
+
+      document.documentElement.style.height = `${outerMaxHeight}px`;
+      document.documentElement.style.minHeight = `${outerMaxHeight}px`;
+      document.documentElement.style.maxHeight = `${outerMaxHeight}px`;
+      document.body.style.height = `${outerMaxHeight}px`;
+      document.body.style.minHeight = `${outerMaxHeight}px`;
+      document.body.style.maxHeight = `${outerMaxHeight}px`;
+      appShell.style.height = `${innerMaxHeight}px`;
+      appShell.style.minHeight = `${innerMaxHeight}px`;
+      appShell.style.maxHeight = `${innerMaxHeight}px`;
+      appShell.classList.add('is-constrained');
+
+      contentShell.style.height = `${availableContentHeight}px`;
+      contentShell.style.minHeight = `${availableContentHeight}px`;
+      contentShell.style.maxHeight = `${availableContentHeight}px`;
+
+      listShell.style.height = `${availableListHeight}px`;
+      listShell.style.minHeight = `${availableListHeight}px`;
+      listShell.style.maxHeight = `${availableListHeight}px`;
+      linksList.style.height = `${availableListHeight}px`;
+      linksList.style.maxHeight = `${availableListHeight}px`;
+      linksList.style.overflowX = 'hidden';
+      linksList.style.overflowY = 'auto';
     });
   }
 
   function readPx(value) {
     return Number.parseFloat(value || '0') || 0;
+  }
+
+  function getElementHeight(element) {
+    if (!isVisibleElement(element)) return 0;
+    return Math.ceil(element.getBoundingClientRect().height);
+  }
+
+  function isVisibleElement(element) {
+    if (!element) return false;
+    const style = window.getComputedStyle(element);
+    return style.display !== 'none' && style.visibility !== 'hidden';
   }
 
     function renderBackupStatus() {

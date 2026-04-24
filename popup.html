@@ -4,16 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Quick Links Menu</title>
-  <script>
-    (() => {
-      const screenHeight = window.screen?.availHeight || window.innerHeight || 800;
-      const popupOuterMaxHeight = Math.max(344, Math.floor(screenHeight * 0.8));
-      const popupInnerMaxHeight = Math.max(320, popupOuterMaxHeight - 24);
-      const root = document.documentElement;
-      root.style.setProperty('--popup-outer-max-height', `${popupOuterMaxHeight}px`);
-      root.style.setProperty('--popup-max-height', `${popupInnerMaxHeight}px`);
-    })();
-  </script>
   <style>
     :root {
       --bg: #f3f5f7;
@@ -38,6 +28,9 @@
       --scrollbar: rgba(31, 41, 51, 0.14);
       --ui-scale: 1;
       --shell-inset: calc(12px * var(--ui-scale));
+      --popup-width: 380px;
+      --popup-max-height: 576px;
+      --popup-max-inner-height: calc(var(--popup-max-height) - 24px);
     }
 
     [data-theme="dark"] {
@@ -70,10 +63,12 @@
     html, body {
       margin: 0;
       padding: 0;
+      width: var(--popup-width);
+      min-width: var(--popup-width);
+      max-width: var(--popup-width);
+      height: auto;
       min-height: 0;
-      min-width: 380px;
-      max-width: 380px;
-      max-height: var(--popup-outer-max-height, 640px);
+      max-height: none;
       overflow: hidden;
       background:
         radial-gradient(circle at top left, rgba(20, 116, 111, 0.18), transparent 38%),
@@ -84,8 +79,8 @@
     }
 
     body {
+      width: var(--popup-width);
       padding: 12px;
-      max-height: var(--popup-outer-max-height, 640px);
       overflow: hidden;
       transition: background 0.25s ease, color 0.25s ease;
     }
@@ -95,6 +90,7 @@
     select,
     textarea {
       font: inherit;
+      min-width: 0;
     }
 
     button {
@@ -108,6 +104,7 @@
     select,
     textarea {
       width: 100%;
+      min-width: 0;
       border: 1px solid var(--border);
       border-radius: calc(12px * var(--ui-scale));
       background: var(--input-bg);
@@ -138,12 +135,37 @@
       box-shadow: var(--shadow);
       backdrop-filter: blur(14px);
       overflow: hidden;
-      max-height: var(--popup-max-height, 520px);
+      height: auto;
+      min-height: 0;
+      max-height: var(--popup-max-inner-height);
+      min-width: 0;
       display: flex;
       flex-direction: column;
       gap: calc(8px * var(--ui-scale));
-      min-height: 0;
       padding: var(--shell-inset);
+    }
+
+    .app-shell.is-constrained {
+      height: var(--popup-max-inner-height);
+      min-height: var(--popup-max-inner-height);
+      max-height: var(--popup-max-inner-height);
+    }
+
+    .content-shell {
+      display: flex;
+      flex-direction: column;
+      flex: 0 1 auto;
+      min-height: 0;
+      overflow: hidden;
+      gap: calc(8px * var(--ui-scale));
+    }
+
+    .app-shell.is-constrained .content-shell {
+      display: flex;
+      flex-direction: column;
+      flex: 0 0 auto;
+      min-height: 0;
+      overflow: hidden;
     }
 
     .app-shell > * {
@@ -286,10 +308,11 @@
     .toolbar-row {
       display: grid;
       gap: calc(5px * var(--ui-scale));
+      min-width: 0;
     }
 
     .toolbar-row.primary {
-      grid-template-columns: 1fr calc(128px * var(--ui-scale));
+      grid-template-columns: minmax(0, 1fr) minmax(0, calc(128px * var(--ui-scale)));
     }
 
     .toolbar-row.secondary,
@@ -301,9 +324,9 @@
       height: calc(19px * var(--ui-scale));
       min-height: calc(19px * var(--ui-scale));
       max-height: calc(19px * var(--ui-scale));
-      padding: 0 calc(8px * var(--ui-scale));
+      padding: 0 calc(6px * var(--ui-scale));
       border-radius: calc(8px * var(--ui-scale));
-      font-size: calc(13px * var(--ui-scale));
+      font-size: min(calc(12px * var(--ui-scale)), 13px);
       line-height: 1;
     }
 
@@ -318,7 +341,10 @@
       height: calc(19px * var(--ui-scale));
       padding-top: 0;
       padding-bottom: 0;
-      font-size: calc(13px * var(--ui-scale));
+      font-size: min(calc(12px * var(--ui-scale)), 13px);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .btn {
@@ -326,11 +352,16 @@
       align-items: center;
       justify-content: center;
       gap: calc(6px * var(--ui-scale));
+      min-width: 0;
+      max-width: 100%;
       min-height: calc(38px * var(--ui-scale));
       padding: 0 calc(12px * var(--ui-scale));
       border-radius: calc(12px * var(--ui-scale));
       font-size: calc(12px * var(--ui-scale));
       font-weight: 600;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
       transition: transform 0.15s ease, background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
     }
 
@@ -373,6 +404,8 @@
       align-items: center;
       justify-content: center;
       gap: calc(6px * var(--ui-scale));
+      min-width: 0;
+      max-width: 100%;
       min-height: calc(38px * var(--ui-scale));
       padding: 0 calc(12px * var(--ui-scale));
       border-radius: calc(12px * var(--ui-scale));
@@ -382,6 +415,9 @@
       background: var(--panel-strong);
       color: var(--text);
       cursor: pointer;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
       transition: transform 0.15s ease, border-color 0.2s ease, color 0.2s ease;
     }
 
@@ -486,24 +522,41 @@
     }
 
     .list-shell {
-      display: flex;
-      flex-direction: column;
-      flex: 1 1 auto;
+      display: block;
+      flex: 0 0 auto;
       min-height: 0;
-      overflow: hidden;
+      overflow: visible;
       padding: 0;
+    }
+
+    .app-shell.is-constrained .list-shell {
+      display: block;
+      min-height: 0;
+      flex: none;
+      overflow: hidden;
     }
 
     #linksList {
       display: grid;
-      flex: 1 1 auto;
       gap: calc(8px * var(--ui-scale));
       min-height: 0;
-      height: 100%;
-      max-height: none;
+      max-height: 280px;
+      align-content: start;
+      overflow-x: hidden;
       overflow-y: auto;
       overscroll-behavior: contain;
+      scrollbar-gutter: stable;
       padding: 0;
+    }
+
+    .app-shell.is-constrained #linksList {
+      display: grid;
+      min-height: 0;
+      max-height: none;
+      overflow-x: hidden;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-gutter: stable;
     }
 
     #linksList::-webkit-scrollbar,
@@ -868,11 +921,12 @@
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: calc(8px * var(--ui-scale));
+      min-width: 0;
     }
 
     .footer {
       display: grid;
-      grid-template-columns: auto 1fr auto;
+      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr) minmax(0, 1fr);
       align-items: center;
       gap: calc(4px * var(--ui-scale));
       height: calc(22px * var(--ui-scale));
@@ -892,6 +946,7 @@
       height: 100%;
       gap: calc(5px * var(--ui-scale));
       min-width: 0;
+      overflow: hidden;
     }
 
     .footer-center {
@@ -901,6 +956,8 @@
       justify-self: center;
       gap: calc(4px * var(--ui-scale));
       min-width: 0;
+      max-width: 100%;
+      overflow: hidden;
     }
 
     .footer-info-wrap {
@@ -917,6 +974,9 @@
       color: var(--muted);
       white-space: nowrap;
       line-height: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .footer-link:hover {
@@ -925,18 +985,18 @@
 
     .footer-update {
       min-height: calc(15px * var(--ui-scale));
-      padding: 0 calc(6px * var(--ui-scale));
+      padding: 0 calc(4px * var(--ui-scale));
       border-radius: calc(6px * var(--ui-scale));
-      font-size: calc(10px * var(--ui-scale));
+      font-size: min(calc(9px * var(--ui-scale)), 10px);
       line-height: 1;
     }
 
     .footer-tool-btn,
     .footer-tool-label {
       min-height: calc(15px * var(--ui-scale));
-      padding: 0 calc(6px * var(--ui-scale));
+      padding: 0 calc(4px * var(--ui-scale));
       border-radius: calc(6px * var(--ui-scale));
-      font-size: calc(10px * var(--ui-scale));
+      font-size: min(calc(9px * var(--ui-scale)), 10px);
       gap: calc(4px * var(--ui-scale));
       line-height: 1;
     }
@@ -1058,6 +1118,7 @@
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: calc(8px * var(--ui-scale));
+      min-width: 0;
     }
 
     .email-row {
@@ -1117,7 +1178,7 @@
       min-height: calc(24px * var(--ui-scale));
       padding: 0 calc(6px * var(--ui-scale));
       border-radius: calc(8px * var(--ui-scale));
-      font-size: calc(9px * var(--ui-scale));
+      font-size: min(calc(9px * var(--ui-scale)), 10px);
       white-space: nowrap;
     }
 
@@ -1200,6 +1261,8 @@
         </div>
       </div>
     </header>
+
+    <main class="content-shell">
 
     <section class="toolbar">
       <div class="toolbar-row primary">
@@ -1294,6 +1357,8 @@
     <section class="list-shell">
       <div id="linksList" aria-live="polite"></div>
     </section>
+
+    </main>
 
     <footer class="footer">
       <div class="footer-left">

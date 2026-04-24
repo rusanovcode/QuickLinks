@@ -115,7 +115,6 @@ export function createActions(ctx, deps) {
     elements.closeUndoBtn.addEventListener('click', clearUndoBar);
 
     document.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('resize', deps.syncScrollableLayout);
 
     [elements.devModal, elements.updateModal, elements.collectionModal].forEach((modal) => {
       modal.addEventListener('click', (event) => {
